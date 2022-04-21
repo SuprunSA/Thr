@@ -13,7 +13,7 @@
             tunnel = new(t, t);
             List<Brigade> brigades = new();
 
-            for (int i = 0; i < p / 2; i++)
+            for (int i = 0; i < p / 2 + 1; i++)
             {
                 brigades.Add(new(i + 1));
             }
@@ -38,7 +38,7 @@
                 var next = rnd.Next(sum + 1);
                 var number = parametrs.First(x => x >= next);
                 number = parametrs.IndexOf(number) + 1;
-                new TunnelShip(cargo.ElementAt(rnd.Next(8)), i + 1, port, tunnel, brigades, number);
+                new Ship(cargo.ElementAt(rnd.Next(8)), i + 1, port, tunnel, brigades, number);
             }
         }
 

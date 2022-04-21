@@ -5,29 +5,43 @@ using System.Threading;
 
 namespace Thr
 {
-    public abstract class Ship
+    public class Ship : AShip
     {
-        public Thread Handler { get; set; }
-        public static Semaphore Tunnel { get; set; }
-        public static Semaphore Port { get; set; }
-        public int Quantity { get; }
-        public int Counter { get; }
-        public int Number { get; }
-        public List<Brigade> Brigades { get; set; }
+        public Ship(int quantity, int counter, Semaphore port, Semaphore tunnel, List<Brigade> brigades, int number) :
+            base(quantity, counter, port, tunnel, brigades, number)
+        { }
 
-        public Ship(int quantity, int counter, Semaphore port, Semaphore tunnel, List<Brigade> brigades, int number)
+        public override void Handle()
         {
-            Quantity = quantity;
-            Counter = counter;
-            Port = port;
-            Tunnel = tunnel;
-            Brigades = brigades;
-            Number = number;
+            Tunnel.WaitOne();
 
-            Handler = new(Handle);
-            Handler.Start();
+            Console.ForegroundColor = ConsoleColor.DarkYellow;
+            Console.WriteLine(string.Format("Корабль №{0} прибыл в туннель", Counter));
+            Thread.Sleep(1000 * Quantity); //симуляцияя прохода через туннель
+            Console.ForegroundColor = ConsoleColor.Green;
+
+            Console.WriteLine(string.Format("Корабль №{0} прошел туннель", Counter));
+
+            Port.WaitOne();
+            Tunnel.Release();
+            // освобождение места в туннеле только после того, как корабль пришел в порт
+
+            Console.ForegroundColor = ConsoleColor.Blue;
+            Console.WriteLine(string.Format("Корабль №{0} прибыл в порт", Counter));
+
+            var currentBrigade = Brigades.First(br => br.Number == Number);
+            currentBrigade.brigade.WaitOne();
+
+            Console.ForegroundColor = ConsoleColor.DarkMagenta;
+            Console.WriteLine(string.Format("Бригада {0} начала разгрузку корабля №{1}", currentBrigade.Number, Counter));
+
+            Thread.Sleep(1000 * Quantity); //симуляцияя разгрузки
+
+            Console.ResetColor();
+            Console.WriteLine(string.Format("Корабль №{0} был разгружен", Counter));
+
+            currentBrigade.brigade.Release();
+            Port.Release();
         }
-
-        public abstract void Handle();
     }
 }

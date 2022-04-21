@@ -29,8 +29,11 @@ namespace Thr
             Console.ForegroundColor = ConsoleColor.Blue;
             Console.WriteLine(string.Format("Корабль №{0} прибыл в порт", Counter));
 
-            var currentBrigade = Brigades.First(br => br.Number == Number);
-            currentBrigade.brigade.WaitOne();
+            var currentBrigade = Brigades.FirstOrDefault(br => br.Number == Number);
+
+            if (currentBrigade != default)
+                currentBrigade.brigade.WaitOne();
+            else throw new ArgumentNullException();
 
             Console.ForegroundColor = ConsoleColor.DarkMagenta;
             Console.WriteLine(string.Format("Бригада {0} начала разгрузку корабля №{1}", currentBrigade.Number, Counter));
